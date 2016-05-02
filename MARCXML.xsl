@@ -28,7 +28,7 @@ or
 	</xsl:if>
 	<xsl:if test="normalize-space(e:composition_type)">
 		<marc:datafield tag="047" ind1="" ind2="">
-			<!-- TODO: tranlate to controlled vocabulary -->
+			<!-- TODO: translate to controlled vocabulary -->
 			<marc:subfield code="a"><xsl:value-of select="e:composition_type" /></marc:subfield>
 		</marc:datafield>
 	</xsl:if>
@@ -70,7 +70,7 @@ or
 		</xsl:when>
 	</xsl:choose>
 	<xsl:if test="normalize-space(e:title)">
-		<marc:datafield tag="245" ind1="" ind2="">
+		<marc:datafield tag="245" ind1="0" ind2="0">
 			<marc:subfield code="a"><xsl:value-of select="e:title" /></marc:subfield>
 		</marc:datafield>
 	</xsl:if>
@@ -81,7 +81,9 @@ or
 	</xsl:if>
 	<xsl:if test="normalize-space(e:publisher)">
 		<marc:datafield tag="260" ind1="" ind2="">
-			<marc:subfield code="a"><xsl:value-of select="e:publisher" /></marc:subfield>
+			<xsl:if test="normalize-space(e:publisher)">
+				<marc:subfield code="a"><xsl:value-of select="e:publisher" /></marc:subfield>
+			</xsl:if>
 			<xsl:if test="normalize-space(e:place_of_pub)">
 				<marc:subfield code="b"><xsl:value-of select="e:place_of_pub" /></marc:subfield>
 			</xsl:if>
@@ -104,7 +106,7 @@ or
 		</marc:datafield>
 	</xsl:for-each>
 	<xsl:if test="normalize-space(e:volume)">
-		<marc:datafield tag="362" ind1="" ind2="">
+		<marc:datafield tag="362" ind1="0" ind2="">
 			<marc:subfield code="a">
 				<xsl:text>Vol. </xsl:text>
 				<xsl:value-of select="e:volume" />
@@ -146,22 +148,58 @@ or
 		<xsl:variable name="keywordList">
 			<xsl:call-template name="tokenize">
 				<xsl:with-param name="inputString" select="e:keywords" />
-				<xsl:with-param name="tokenString" select="';'" />
+				<xsl:with-param name="tokenString">
+					<xsl:choose>
+						<xsl:when test="not(contains(e:keywords, ';'))">
+							<xsl:text>,</xsl:text>
+						</xsl:when>
+						<xsl:otherwise>
+							<xsl:text>;</xsl:text>
+						</xsl:otherwise>
+					</xsl:choose>
+				</xsl:with-param>
 			</xsl:call-template>
 		</xsl:variable>
-		<xsl:for-each select="exsl:node-set($keywordList)/token">
-			<marc:datafield tag="653" ind1="" ind2="">
+		<marc:datafield tag="653" ind1="" ind2="">
+			<xsl:for-each select="exsl:node-set($keywordList)/token">
 				<marc:subfield code="a"><xsl:value-of select="." /></marc:subfield>
+			</xsl:for-each>
+		</marc:datafield>
+	</xsl:if>
+	<xsl:choose>
+		<xsl:when test="count(e:creators/e:item/e:name) = 1 or count(e:corp_creators/e:item) = 1 or count(e:event_title) = 1" />
+		<xsl:when test="count(e:creators/e:item/e:name)">
+			<xsl:for-each select="e:creators/e:item/e:name">
+				<xsl:if test="position()>1">
+					<marc:datafield tag="700" ind1="1" ind2="">
+						<marc:subfield code="a"><xsl:value-of select="e:family" /><xsl:if test="normalize-space(e:given)"><xsl:text>, </xsl:text><xsl:value-of select="e:given" /></xsl:if></marc:subfield>
+						<xsl:if test="normalize-space(e:lineage)"><marc:subfield code="b"><xsl:value-of select="e:lineage" /></marc:subfield></xsl:if>
+						<xsl:if test="normalize-space(e:honourific)"><marc:subfield code="c"><xsl:value-of select="e:honourific" /></marc:subfield></xsl:if>
+					</marc:datafield>
+				</xsl:if>
+			</xsl:for-each>
+		</xsl:when>
+		<xsl:when test="count(e:corp_creators/e:item)">
+			<xsl:for-each select="e:corp_creators/e:item">
+				<xsl:if test="position()>1">
+					<marc:datafield tag="710" ind1="2" ind2="">
+						<marc:subfield code="a"><xsl:value-of select="." /></marc:subfield>
+					</marc:datafield>
+				</xsl:if>
+			</xsl:for-each>
+		</xsl:when>
+	</xsl:choose>
+	<xsl:for-each select="e:editors|e:producers|e:conductors|e:lyracists|e:exhibitors">
+		<xsl:for-each select="e:item/e:name">
+			<marc:datafield tag="700" ind1="1" ind2="">
+				<marc:subfield code="a"><xsl:value-of select="e:family" /><xsl:if test="normalize-space(e:given)"><xsl:text>, </xsl:text><xsl:value-of select="e:given" /></xsl:if></marc:subfield>
+				<xsl:if test="normalize-space(e:lineage)"><marc:subfield code="b"><xsl:value-of select="e:lineage" /></marc:subfield></xsl:if>
+				<xsl:if test="normalize-space(e:honourific)"><marc:subfield code="c"><xsl:value-of select="e:honourific" /></marc:subfield></xsl:if>
 			</marc:datafield>
 		</xsl:for-each>
-	</xsl:if>
-	<xsl:for-each select="e:editors|e:producers|e:conductors|e:lyracists|e:exhibitors">
-		<marc:datafield tag="700" ind1="1" ind2="">
-			<marc:subfield code="a"><xsl:value-of select="." /></marc:subfield>
-		</marc:datafield>
 	</xsl:for-each> 
 	<xsl:if test="normalize-space(e:institution)">
-		<marc:datafield tag="710" ind1="" ind2="">
+		<marc:datafield tag="710" ind1="2" ind2="">
 			<marc:subfield code="a"><xsl:value-of select="e:institution" /></marc:subfield>
 		</marc:datafield>
 	</xsl:if> 
@@ -183,7 +221,7 @@ or
 	<xsl:for-each select="e:related_url/e:item">
 		<marc:datafield tag="856" ind1="4" ind2="2">
 			<marc:subfield code="u"><xsl:value-of select="e:url" /></marc:subfield>
-		</marc:datafield>
+	</marc:datafield>
 	</xsl:for-each>
 </marc:record>
 </xsl:template>
