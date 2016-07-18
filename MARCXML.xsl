@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
 EPrint to MARCXML transformation
-EPrints 3.2.x compatible stylesheet, intended for use with the plugin EPrints::Plugin::Export::XSLT.
+EPrints 3.3.x compatible stylesheet, intended for use with the plugin EPrints::Plugin::Export::XSLT.
 
 Copyright (c) 2016, University of Pittsburgh
 Authored by Clinton Graham <ctgraham@pitt.edu> (412-383-1057) for the University Library System
@@ -11,9 +11,35 @@ This is free software, licensed under (at your option):
 or
 	the GNU General Public License, version 1 or later (http://www.gnu.org/licenses/licenses.en.html)
 -->
-<xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:e="http://eprints.org/ep2/data/2.0" xmlns:exsl="http://exslt.org/common" xmlns:marc="http://www.loc.gov/MARC21/slim" exclude-result-prefixes="xsi xsl e exsl">
+<xsl:stylesheet 
+	version="1.0" 
+	xmlns:xsl="http://www.w3.org/1999/XSL/Transform" 
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+	xmlns:e="http://eprints.org/ep2/data/2.0" 
+	xmlns:ept="http://eprints.org/ep2/xslt/1.0" 
+	xmlns:exsl="http://exslt.org/common" 
+	xmlns:marc="http://www.loc.gov/MARC21/slim" 
+	exclude-result-prefixes="xsi xsl e ept exsl"
+	ept:name="MARCXML"
+	ept:visible="all"
+	ept:advertise="1"
+	ept:accept="list/eprint dataobj/eprint"
+	ept:mimetype="application/xml; charset=utf-8"
+	ept:qs="0.1"
+>
 <xsl:output method="xml" indent="yes" />
-<xsl:template match="e:eprint">
+
+<xsl:param name="results" />
+
+<xsl:template match="text()" />
+
+<xsl:template match="/ept:template">
+<marc:collection>
+	<xsl:value-of select="$results" />
+</marc:collection>
+</xsl:template>
+
+<xsl:template match="/e:eprints/e:eprint">
 <marc:record>
 	<marc:leader>                  a</marc:leader>
 	<xsl:if test="normalize-space(e:isbn)">
@@ -82,7 +108,7 @@ or
 	<xsl:if test="normalize-space(e:publisher)">
 		<marc:datafield tag="260" ind1="" ind2="">
 			<xsl:if test="normalize-space(e:publisher)">
-				<marc:subfield code="a"><xsl:value-of select="e:publisher" /></marc:subfield>
+			<marc:subfield code="a"><xsl:value-of select="e:publisher" /></marc:subfield>
 			</xsl:if>
 			<xsl:if test="normalize-space(e:place_of_pub)">
 				<marc:subfield code="b"><xsl:value-of select="e:place_of_pub" /></marc:subfield>
@@ -161,7 +187,7 @@ or
 			</xsl:call-template>
 		</xsl:variable>
 		<marc:datafield tag="653" ind1="" ind2="">
-			<xsl:for-each select="exsl:node-set($keywordList)/token">
+		<xsl:for-each select="exsl:node-set($keywordList)/token">
 				<marc:subfield code="a"><xsl:value-of select="." /></marc:subfield>
 			</xsl:for-each>
 		</marc:datafield>
@@ -175,9 +201,9 @@ or
 						<marc:subfield code="a"><xsl:value-of select="e:family" /><xsl:if test="normalize-space(e:given)"><xsl:text>, </xsl:text><xsl:value-of select="e:given" /></xsl:if></marc:subfield>
 						<xsl:if test="normalize-space(e:lineage)"><marc:subfield code="b"><xsl:value-of select="e:lineage" /></marc:subfield></xsl:if>
 						<xsl:if test="normalize-space(e:honourific)"><marc:subfield code="c"><xsl:value-of select="e:honourific" /></marc:subfield></xsl:if>
-					</marc:datafield>
+			</marc:datafield>
 				</xsl:if>
-			</xsl:for-each>
+		</xsl:for-each>
 		</xsl:when>
 		<xsl:when test="count(e:corp_creators/e:item)">
 			<xsl:for-each select="e:corp_creators/e:item">
@@ -185,18 +211,18 @@ or
 					<marc:datafield tag="710" ind1="2" ind2="">
 						<marc:subfield code="a"><xsl:value-of select="." /></marc:subfield>
 					</marc:datafield>
-				</xsl:if>
+	</xsl:if>
 			</xsl:for-each>
 		</xsl:when>
 	</xsl:choose>
 	<xsl:for-each select="e:editors|e:producers|e:conductors|e:lyracists|e:exhibitors">
 		<xsl:for-each select="e:item/e:name">
-			<marc:datafield tag="700" ind1="1" ind2="">
+		<marc:datafield tag="700" ind1="1" ind2="">
 				<marc:subfield code="a"><xsl:value-of select="e:family" /><xsl:if test="normalize-space(e:given)"><xsl:text>, </xsl:text><xsl:value-of select="e:given" /></xsl:if></marc:subfield>
 				<xsl:if test="normalize-space(e:lineage)"><marc:subfield code="b"><xsl:value-of select="e:lineage" /></marc:subfield></xsl:if>
 				<xsl:if test="normalize-space(e:honourific)"><marc:subfield code="c"><xsl:value-of select="e:honourific" /></marc:subfield></xsl:if>
-			</marc:datafield>
-		</xsl:for-each>
+		</marc:datafield>
+	</xsl:for-each> 
 	</xsl:for-each> 
 	<xsl:if test="normalize-space(e:institution)">
 		<marc:datafield tag="710" ind1="2" ind2="">
@@ -221,7 +247,7 @@ or
 	<xsl:for-each select="e:related_url/e:item">
 		<marc:datafield tag="856" ind1="4" ind2="2">
 			<marc:subfield code="u"><xsl:value-of select="e:url" /></marc:subfield>
-	</marc:datafield>
+		</marc:datafield>
 	</xsl:for-each>
 </marc:record>
 </xsl:template>
