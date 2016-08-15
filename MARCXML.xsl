@@ -43,7 +43,7 @@ or
 
 <xsl:template match="/e:eprints/e:eprint">
 <marc:record>
-	<marc:leader><xsl:text>     n</xsl:text><xsl:call-template name="decodeType"><xsl:with-param name="inputType" select="e:type" /></xsl:call-template><xsl:text>         7a</xsl:text></marc:leader>
+	<marc:leader><xsl:text>     n</xsl:text><xsl:call-template name="decodeType"><xsl:with-param name="inputType" select="e:type" /></xsl:call-template><xsl:text>  22     7a 4500</xsl:text></marc:leader>
 	<xsl:if test="e:type[text() = 'thesis_degree']">
 		<xsl:if test="normalize-space(e:etd_approval_date)">
 			<marc:controlfield tag="008">
