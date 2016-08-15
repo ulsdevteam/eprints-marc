@@ -41,7 +41,7 @@ or
 
 <xsl:template match="/e:eprints/e:eprint">
 <marc:record>
-	<marc:leader>                  a</marc:leader>
+	<marc:leader>          22      a 4500</marc:leader>
 	<xsl:if test="normalize-space(e:isbn)">
 		<marc:datafield tag="020" ind1="" ind2="">
 			<marc:subfield code="a"><xsl:value-of select="e:isbn" /></marc:subfield>
