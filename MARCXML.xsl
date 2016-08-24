@@ -96,7 +96,17 @@ or
 		</xsl:when>
 	</xsl:choose>
 	<xsl:if test="normalize-space(e:title)">
-		<marc:datafield tag="245" ind1="0" ind2="0">
+		<marc:datafield tag="245" ind1="0">
+			<xsl:attribute name="ind2">
+				<xsl:choose>
+					<xsl:when test="starts-with(e:title, 'A ')">2</xsl:when>
+					<xsl:when test="starts-with(e:title, 'AN ')">3</xsl:when>
+					<xsl:when test="starts-with(e:title, 'An ')">3</xsl:when>
+					<xsl:when test="starts-with(e:title, 'THE ')">4</xsl:when>
+					<xsl:when test="starts-with(e:title, 'The ')">4</xsl:when>
+					<xsl:otherwise>0</xsl:otherwise>
+				</xsl:choose>
+			</xsl:attribute>
 			<marc:subfield code="a"><xsl:value-of select="e:title" /></marc:subfield>
 		</marc:datafield>
 	</xsl:if>
@@ -211,7 +221,7 @@ or
 					<marc:datafield tag="710" ind1="2" ind2=" ">
 						<marc:subfield code="a"><xsl:value-of select="." /></marc:subfield>
 					</marc:datafield>
-	</xsl:if>
+				</xsl:if>
 			</xsl:for-each>
 		</xsl:when>
 	</xsl:choose>
@@ -276,4 +286,3 @@ or
 </xsl:template>
 
 </xsl:stylesheet>
-
