@@ -35,7 +35,7 @@ or
 
 <xsl:template match="text()" />
 
-<xsl:template match="/ept:template">
+<xsl:template match="ept:template">
 <marc:collection>
 	<xsl:value-of select="$results" />
 </marc:collection>
@@ -43,11 +43,12 @@ or
 
 <xsl:template match="/e:eprints/e:eprint">
 <marc:record>
-	<marc:leader><xsl:text>     n</xsl:text><xsl:call-template name="decodeType"><xsl:with-param name="inputType" select="e:type" /></xsl:call-template><xsl:text>  22     7a 4500</xsl:text></marc:leader>
+	<marc:leader><xsl:text>     n</xsl:text><xsl:call-template name="decodeType"><xsl:with-param name="inputType" select="e:type" /></xsl:call-template><xsl:text>  22     7i 4500</xsl:text></marc:leader>
 	<xsl:if test="e:type[text() = 'thesis_degree']">
 		<xsl:if test="normalize-space(e:etd_approval_date)">
+			<marc:controlfield tag="007">cr un||||||c||</marc:controlfield>
 			<marc:controlfield tag="008">
-				<xsl:text>      s</xsl:text><xsl:value-of select="substring-before(e:etd_approval_date, '-')" /><xsl:text>            sm    00| 0|</xsl:text><xsl:call-template name="iso639convert"><xsl:with-param name="inputCode" select="e:documents/e:document[e:content/text() = 'main' and string-length(e:language) = 2][1]/e:language" /></xsl:call-template><xsl:text> d</xsl:text>
+				<xsl:text>      s</xsl:text><xsl:value-of select="substring-before(e:etd_approval_date, '-')" /><xsl:text>            smb   00| 0|</xsl:text><xsl:call-template name="iso639convert"><xsl:with-param name="inputCode" select="e:documents/e:document[e:content/text() = 'main' and string-length(e:language) = 2][1]/e:language" /></xsl:call-template><xsl:text> d</xsl:text>
 			</marc:controlfield>
 		</xsl:if>
 	</xsl:if>
@@ -123,11 +124,18 @@ or
 		</xsl:when>
 	</xsl:choose>
 	<xsl:if test="normalize-space(e:title)">
-		<marc:datafield tag="245" ind1="0" ind2="0">
+		<marc:datafield tag="245" ind1="1">
+			<xsl:attribute name="ind2">
+				<xsl:choose>
+					<xsl:when test="starts-with(e:title, 'A ')">2</xsl:when>
+					<xsl:when test="starts-with(e:title, 'AN ')">3</xsl:when>
+					<xsl:when test="starts-with(e:title, 'An ')">3</xsl:when>
+					<xsl:when test="starts-with(e:title, 'THE ')">4</xsl:when>
+					<xsl:when test="starts-with(e:title, 'The ')">4</xsl:when>
+					<xsl:otherwise>0</xsl:otherwise>
+				</xsl:choose>
+			</xsl:attribute>
 			<marc:subfield code="a"><xsl:value-of select="e:title" /></marc:subfield>
-			<xsl:if test="e:type[text() = 'thesis_degree']">
-				<marc:subfield code="h"><xsl:text>[computer file]</xsl:text></marc:subfield>
-			</xsl:if>
 		</marc:datafield>
 	</xsl:if>
 	<xsl:if test="normalize-space(e:book_title)">
@@ -136,7 +144,7 @@ or
 		</marc:datafield>
 	</xsl:if>
 	<xsl:if test="normalize-space(e:publisher) or (e:type[text() = 'thesis_degree'] and normalize-space(e:etd_approval_date))">
-		<marc:datafield tag="260" ind1=" " ind2=" ">
+		<marc:datafield tag="264" ind1=" " ind2="1">
 			<xsl:if test="normalize-space(e:publisher)">
 			<marc:subfield code="a"><xsl:value-of select="e:publisher" /></marc:subfield>
 			</xsl:if>
@@ -159,13 +167,38 @@ or
 				<xsl:if test="local-name(.) = 'pagerange'">
 					<xsl:text>pages </xsl:text>
 				</xsl:if>
+				<xsl:if test="local-name(.) = 'pages'">
+					<xsl:text>1 online resource (</xsl:text>
+				</xsl:if>
 				<xsl:value-of select="." />
 				<xsl:if test="local-name(.) = 'pages'">
-					<xsl:text> pages</xsl:text>
+					<xsl:text> pages)</xsl:text>
 				</xsl:if>
 			</marc:subfield>
 		</marc:datafield>
 	</xsl:for-each>
+	<xsl:if test="count(e:num_pieces|e:pagerange|e:pages) = 0">
+		<marc:datafield tag="300" ind1=" " ind2=" ">
+			<marc:subfield code="a">
+				<xsl:text>1 online resource (1 volume)</xsl:text>
+			</marc:subfield>
+		</marc:datafield>
+	</xsl:if>
+	<marc:datafield tag="336" ind1=" " ind2=" ">
+		<marc:subfield code="a">text</marc:subfield>
+		<marc:subfield code="b">txt</marc:subfield>
+		<marc:subfield code="2">rdacontent</marc:subfield>
+	</marc:datafield>
+	<marc:datafield tag="337" ind1=" " ind2=" ">
+		<marc:subfield code="a">computer</marc:subfield>
+		<marc:subfield code="b">c</marc:subfield>
+		<marc:subfield code="2">rdamedia</marc:subfield>
+	</marc:datafield>
+	<marc:datafield tag="338" ind1=" " ind2=" ">
+		<marc:subfield code="a">online resource</marc:subfield>
+		<marc:subfield code="b">cr</marc:subfield>
+		<marc:subfield code="2">rdacarrier</marc:subfield>
+	</marc:datafield>
 	<xsl:if test="normalize-space(e:volume)">
 		<marc:datafield tag="362" ind1="0" ind2=" ">
 			<marc:subfield code="a">
@@ -188,6 +221,25 @@ or
 			<marc:subfield code="a"><xsl:value-of select="." /></marc:subfield>
 		</marc:datafield>
 	</xsl:for-each>
+	<xsl:if test="count(e:divisions/e:item) = 1">
+		<marc:datafield tag="500" ind1=" " ind2=" ">
+			<xsl:variable name="division"><xsl:value-of select="ept:render_value('divisions')" /></xsl:variable>
+			<marc:subfield code="a">
+				<xsl:choose>
+					<xsl:when test="string-length(normalize-space(substring-before($division, '&gt;'))) &gt; 0 and string-length(normalize-space(substring-after($division, '&gt;'))) &gt; 0">
+						<xsl:text>School: </xsl:text>
+						<xsl:value-of select="normalize-space(substring-before($division, '&gt;'))" />
+						<xsl:text>. Program: </xsl:text>
+						<xsl:value-of select="normalize-space(substring-after($division, '&gt;'))" />
+						<xsl:text>.</xsl:text>
+					</xsl:when>
+					<xsl:otherwise>
+						<xsl:value-of select="$division" />
+					</xsl:otherwise>
+				</xsl:choose>
+			</marc:subfield>
+		</marc:datafield>
+	</xsl:if>
 	<xsl:if test="e:type[text() = 'thesis_degree']">
 		<marc:datafield tag="502" ind1=" " ind2=" ">
 			<marc:subfield code="a">
@@ -200,11 +252,6 @@ or
 					<xsl:text>, </xsl:text><xsl:value-of select="substring-before(e:etd_approval_date, '-')" />
 				</xsl:if>
 			</marc:subfield>
-			<xsl:if test="normalize-space(e:etd_defense_date)">
-				<marc:subfield code="g">
-					<xsl:value-of select="substring-before(e:etd_defense_date, '-')" /><xsl:text> (defended)</xsl:text>
-				</marc:subfield>
-			</xsl:if>
 		</marc:datafield>
 		<marc:datafield tag="504" ind1=" " ind2=" ">
 			<marc:subfield code="a">
@@ -591,4 +638,3 @@ or
 </xsl:template>
 
 </xsl:stylesheet>
-
