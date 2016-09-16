@@ -33,7 +33,7 @@ or
 
 <xsl:template match="text()" />
 
-<xsl:template match="/ept:template">
+<xsl:template match="ept:template">
 <marc:collection>
 	<xsl:value-of select="$results" />
 </marc:collection>
