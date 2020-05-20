@@ -15,28 +15,35 @@
   </xsl:template>
 
   <!-- 007/0 & 007/1: he -->
+  <!-- 007/4: | -->
   <xsl:template match="marc:controlfield[@tag='007']">
     <xsl:copy>
       <xsl:apply-templates select="@*" />
-      <xsl:value-of select="concat('he', substring(., 3))" />
+      <xsl:value-of select="concat('he', substring(., 3, 1), '|', substring(., 5))" />
     </xsl:copy>
   </xsl:template>
 
+  <!-- 008/15-17: xx# -->
   <!-- 008/23: b -->
   <xsl:template match="marc:controlfield[@tag='008']">
     <xsl:copy>
       <xsl:apply-templates select="@*" />
-      <xsl:value-of select="concat(substring(., 1, 23), 'b', substring(., 25))" />
+      <xsl:value-of select="concat(substring(., 1, 15), 'xx#', substring(., 19, 5), 'b', substring(., 25))" />
     </xsl:copy>
   </xsl:template>
 
-  <!-- 300‡a: replace “1 online resource” with “microfiche” -->
+  <!-- 264: second indicator: 0 -->
+  <xsl:template match="marc:datafield[@tag='264']/@ind2">
+    <xsl:text>0</xsl:text>
+  </xsl:template>
+
+  <!-- 300‡a: remove “1 online resource” to just leave page numbers -->
   <xsl:template match="marc:datafield[@tag='300']/marc:subfield[@code='a']">
     <xsl:copy>
       <xsl:apply-templates select="@*" />
       <xsl:choose>
-        <xsl:when test="substring-before(., '1 online resource') or substring-after(., '1 online resource')">
-          <xsl:value-of select="concat(substring-before(., '1 online resource'), 'microfiche', substring-after(., '1 online resource'))" />
+        <xsl:when test="substring-after(., '1 online resource (') and substring-before(., ')')">
+          <xsl:value-of select="substring-before(substring-after(., '1 online resource ('), ')')" />
         </xsl:when>
         <xsl:otherwise>
           <xsl:value-of select="." />
@@ -63,7 +70,7 @@
   <xsl:template match="marc:datafield[@tag='338']/marc:subfield[@code='a']">
     <xsl:copy>
       <xsl:apply-templates select="@*" />
-      <xsl:text>microform</xsl:text>
+      <xsl:text>microfiche</xsl:text>
     </xsl:copy>
   </xsl:template>
   <xsl:template match="marc:datafield[@tag='338']/marc:subfield[@code='b']">
