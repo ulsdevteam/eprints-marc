@@ -305,7 +305,7 @@ or
 			</xsl:for-each>
 		</marc:datafield>
 	</xsl:if>
-	<marc:datafield tag="655" ind1="_" ind2="7">
+	<marc:datafield tag="655" ind1=" " ind2="7">
 		<marc:subfield code="a">Academic theses.</marc:subfield>
 		<marc:subfield code="2">lcgft</marc:subfield>
 	</marc:datafield>
