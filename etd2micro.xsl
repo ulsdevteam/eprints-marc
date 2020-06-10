@@ -34,7 +34,9 @@
 
   <!-- 264: second indicator: 0 -->
   <xsl:template match="marc:datafield[@tag='264']/@ind2">
-    <xsl:text>0</xsl:text>
+    <xsl:attribute name="ind2">
+      <xsl:text>0</xsl:text>
+    </xsl:attribute>
   </xsl:template>
 
   <!-- 300‡a: remove “1 online resource” to just leave page numbers -->
