@@ -14,21 +14,19 @@
     </xsl:copy>
   </xsl:template>
 
-  <!-- 007/0 & 007/1: he -->
-  <!-- 007/4: | -->
+  <!-- 007: he u -->
   <xsl:template match="marc:controlfield[@tag='007']">
     <xsl:copy>
       <xsl:apply-templates select="@*" />
-      <xsl:value-of select="concat('he', substring(., 3, 1), '|', substring(., 5))" />
+      <xsl:text>he u|||||||||</xsl:text>
     </xsl:copy>
   </xsl:template>
 
-  <!-- 008/15-17: xx# -->
   <!-- 008/23: b -->
   <xsl:template match="marc:controlfield[@tag='008']">
     <xsl:copy>
       <xsl:apply-templates select="@*" />
-      <xsl:value-of select="concat(substring(., 1, 15), 'xx#', substring(., 19, 5), 'b', substring(., 25))" />
+      <xsl:value-of select="concat(substring(., 1, 23), 'b', substring(., 25))" />
     </xsl:copy>
   </xsl:template>
 

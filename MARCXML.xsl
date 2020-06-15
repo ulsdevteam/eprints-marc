@@ -48,7 +48,7 @@ or
 		<xsl:if test="normalize-space(e:etd_approval_date)">
 			<marc:controlfield tag="007">cr un||||||c||</marc:controlfield>
 			<marc:controlfield tag="008">
-				<xsl:text>      s</xsl:text><xsl:value-of select="substring-before(e:etd_approval_date, '-')" /><xsl:text>            smb   00| 0|</xsl:text><xsl:call-template name="iso639convert"><xsl:with-param name="inputCode" select="e:documents/e:document[e:content/text() = 'main' and string-length(e:language) = 2][1]/e:language" /></xsl:call-template><xsl:text> d</xsl:text>
+				<xsl:text>      s</xsl:text><xsl:value-of select="substring-before(e:etd_approval_date, '-')" /><xsl:text>    xx      smb   00| 0|</xsl:text><xsl:call-template name="iso639convert"><xsl:with-param name="inputCode" select="e:documents/e:document[e:content/text() = 'main' and string-length(e:language) = 2][1]/e:language" /></xsl:call-template><xsl:text> d</xsl:text>
 			</marc:controlfield>
 		</xsl:if>
 	</xsl:if>
@@ -244,7 +244,9 @@ or
 		<marc:datafield tag="502" ind1=" " ind2=" ">
 			<xsl:if test="normalize-space(e:degree)">
 				<marc:subfield code="b">
-					<xsl:value-of select="e:degree" />
+					<xsl:call-template name="degreeConvert">
+						<xsl:with-param name="inputCode" select="e:degree" />
+					</xsl:call-template>
 				</marc:subfield>
 			</xsl:if>
 			<marc:subfield code="c">
@@ -448,6 +450,68 @@ or
 		</xsl:otherwise>
 	</xsl:choose>
 
+</xsl:template>
+
+<xsl:template name="degreeConvert">
+	<xsl:param name="inputCode" />
+	<xsl:variable name="codeList">
+		<degree><code>BA</code><abbr>B.A.</abbr></degree>
+		<degree><code>BPhil</code><abbr>B. Phil.</abbr></degree>
+		<degree><code>BS</code><abbr>B.S.</abbr></degree>
+		<degree><code>BSE</code><abbr>B.S.E.</abbr></degree>
+		<degree><code>BSBA</code><abbr>B.S.B.A.</abbr></degree>
+		<degree><code>BSN</code><abbr>B.S.N.</abbr></degree>
+		<degree><code>DMD</code><abbr>D.M.D.</abbr></degree>
+		<degree><code>DrPH</code><abbr>Dr. P.H.</abbr></degree>
+		<degree><code>EdD</code><abbr>Ed. D.</abbr></degree>
+		<degree><code>MA</code><abbr>M.A.</abbr></degree>
+		<degree><code>MAT</code><abbr>M.A.T.</abbr></degree>
+		<degree><code>MBA</code><abbr>M.B.A.</abbr></degree>
+		<degree><code>MD</code><abbr>M.D.</abbr></degree>
+		<degree><code>MDS</code><abbr>M.D.S.</abbr></degree>
+		<degree><code>MEd</code><abbr>M. Ed.</abbr></degree>
+		<degree><code>MFA</code><abbr>M.F.A.</abbr></degree>
+		<degree><code>MHA</code><abbr>M.H.A.</abbr></degree>
+		<degree><code>MHPE</code><abbr>M.H.P.E.</abbr></degree>
+		<degree><code>MIB</code><abbr>M.I.B.</abbr></degree>
+		<degree><code>MID</code><abbr>M.I.D.</abbr></degree>
+		<degree><code>MLIS</code><abbr>M.L.I.S.</abbr></degree>
+		<degree><code>MOT</code><abbr>M.O.T.</abbr></degree>
+		<degree><code>MPA</code><abbr>M.P.A.</abbr></degree>
+		<degree><code>MPH</code><abbr>M.P.H.</abbr></degree>
+		<degree><code>MPIA</code><abbr>M.P.I.A.</abbr></degree>
+		<degree><code>MPPM</code><abbr>M.P.P.M.</abbr></degree>
+		<degree><code>MPT</code><abbr>M.P.T.</abbr></degree>
+		<degree><code>MS</code><abbr>M.S.</abbr></degree>
+		<degree><code>MSBeng</code><abbr>M.S. Beng.</abbr></degree>
+		<degree><code>MSCE</code><abbr>M.S.C.E.</abbr></degree>
+		<degree><code>MSChE</code><abbr>M.S. Ch. E.</abbr></degree>
+		<degree><code>MSCoE</code><abbr>M.S. Co. E.</abbr></degree>
+		<degree><code>MSEE</code><abbr>M.S.E.E.</abbr></degree>
+		<degree><code>MSIE</code><abbr>M.S.I.E.</abbr></degree>
+		<degree><code>MSIS</code><abbr>M.S.I.S.</abbr></degree>
+		<degree><code>MSL</code><abbr>M.S.L.</abbr></degree>
+		<degree><code>MSME</code><abbr>M.S.M.E.</abbr></degree>
+		<degree><code>MSMSE</code><abbr>M.S.M.S.E</abbr></degree>
+		<degree><code>MSMetE</code><abbr>M.S. Met. E.</abbr></degree>
+		<degree><code>MSMfSE</code><abbr>M.S. Mf. S.E.</abbr></degree>
+		<degree><code>MSN</code><abbr>M.S.N.</abbr></degree>
+		<degree><code>MSPE</code><abbr>M.S.P.E.</abbr></degree>
+		<degree><code>MST</code><abbr>M.S.T.</abbr></degree>
+		<degree><code>MSW</code><abbr>M.S.W.</abbr></degree>
+		<degree><code>PhD</code><abbr>Ph. D.</abbr></degree>
+		<degree><code>PharmD</code><abbr>Pharm. D.</abbr></degree>
+		<degree><code>PsyD</code><abbr>Psy. D.</abbr></degree>
+		<degree><code>SJD</code><abbr>S.J.D.</abbr></degree>
+	</xsl:variable>
+	<xsl:choose>
+		<xsl:when test="normalize-space(exsl:node-set($codeList)/degree[code/text() = $inputCode]/abbr)">
+			<xsl:value-of select="exsl:node-set($codeList)/degree[code/text() = $inputCode]/abbr" />
+		</xsl:when>
+		<xsl:otherwise>
+			<xsl:value-of select="$inputCode" />
+		</xsl:otherwise>
+	</xsl:choose>
 </xsl:template>
 
 <xsl:template name="iso639convert">
