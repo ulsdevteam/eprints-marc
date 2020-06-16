@@ -270,7 +270,7 @@ or
 	</xsl:if>
 	<xsl:if test="normalize-space(e:abstract)">
 		<marc:datafield tag="520" ind1="3" ind2=" ">
-			<marc:subfield code="a"><xsl:value-of select="e:abstract" /></marc:subfield>
+			<marc:subfield code="a"><xsl:value-of select="translate(e:abstract, '&#13;&#10;&#9;', '   ')" /></marc:subfield>
 		</marc:datafield>
 	</xsl:if> 
 	<xsl:if test="normalize-space(e:output_media)">
