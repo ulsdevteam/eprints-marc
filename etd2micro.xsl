@@ -80,6 +80,27 @@
     </xsl:copy>
   </xsl:template>
 
+  <!-- 533: Replace with ProQuest -->
+  <!-- if existing -->
+  <xsl:template match="marc:datafield[@tag='533']">
+    <xsl:call-template name="proquest533" />
+  </xsl:template>
+  <!-- if missing, put it after the 520, since we know that is there -->
+  <xsl:template match="marc:datafield[@tag='520' and not(../marc:datafield[@tag='533'])]">
+    <xsl:copy>
+      <xsl:apply-templates select="@*|node()" />
+    </xsl:copy>
+    <xsl:call-template name="proquest533" />
+  </xsl:template>
+
+  <xsl:template name="proquest533">
+    <marc:datafield tag="533" ind1=" " ind2=" ">
+      <marc:subfield code="a"><xsl:text>Microfiche.</xsl:text></marc:subfield>
+      <marc:subfield code="b"><xsl:text>Ann Arbor, Michigan :</xsl:text></marc:subfield>
+      <marc:subfield code="c"><xsl:text>ProQuest, LLC</xsl:text></marc:subfield>
+    </marc:datafield>
+  </xsl:template>
+
   <!-- remove 856 -->
   <xsl:template match="marc:datafield[@tag='856']">
   </xsl:template>
